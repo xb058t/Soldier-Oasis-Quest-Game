@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Document</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body > div {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        #player-count-radio {
+            display: flex;
+            justify-content: space-between;
+            /* add a gap of 10px */
+            gap: 10px;
+        }
+        #player-count-radio input[type="radio"] {
+            display: none;
+        }
+        #player-count-radio label {
+            width: 100%;
+            display: inline-block;
+            line-height: 30px;
+            text-align: center;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+        #player-count-radio input[type="radio"]:checked + label {
+            background-color: var(--bs-success);
+            color: #fff;
+        }
+        .card, #board-grid {
+            background-color: navajowhite;
+        }
+        #board-grid {
+            padding: 1px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 3px;
+        }
+        #board-grid > div {
+            aspect-ratio: 1;
+            background-color:darkgoldenrod;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #board-grid > div.open {
+            background-color: transparent;
+        }
+        #board-players > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body class="container-md h-100 d-flex flex-column justify-content-center h-100">
+    <div id="menu">
+        <h1 class="m-0">Stargame</h1>
+        <p>The IK-1 team is on a mission</p>
+        <hr>
+        <form id="menu-config">
+            <!-- Water levels -->
+            <div class="mb-3">
+                <label for="water-count">Primary water supply</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <img src="./assets/Water.png" alt="Water" width="20">
+                    </span>
+                    <input type="number" class="form-control" id="water-count" value="6">
+                </div>
+            </div>
+
+            <!-- Number of players -->
+            <div class="mb-3">
+                <label>Number of players</label>
+                <div id="player-count-radio">
+                    <input type="radio" name="player-count" id="player-count-1" value="1" checked>
+                    <label for="player-count-1">1</label>
+                
+                    <input type="radio" name="player-count" id="player-count-2" value="2">
+                    <label for="player-count-2">2</label>
+
+                    <input type="radio" name="player-count" id="player-count-3" value="3">
+                    <label for="player-count-3">3</label>
+
+                    <input type="radio" name="player-count" id="player-count-4" value="4">
+                    <label for="player-count-4">4</label>
+                </div>
+            </div>
+
+            <!-- Names of players -->
+            <div id="player-names">
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-danger text-white">
+                        R
+                    </span>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="player-1" placeholder="Enter the name">
+                        <label for="player-1" class="player-name">Name of player 1</label>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-success text-white">
+                        G
+                    </span>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="player-2" placeholder="Enter the name">
+                        <label for="player-2" class="player-name">Name of player 2</label>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-primary text-white">
+                        B
+                    </span>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="player-3" placeholder="Enter the name">
+                        <label for="player-3" class="player-name">Name of player 3</label>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-warning text-white">
+                        Y
+                    </span>
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="player-4" placeholder="Enter the name">
+                        <label for="player-4" class="player-name">Name of player 4</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary py-3 w-100">Start game</button>
+        </form>
+    </div>
+
+    <div id="game-score">
+        <div class="card card-body p-0 m-auto w-50 text-center">
+            <div id="game-time">ti:me</div>
+            <div id="game-objs">
+                <img src="./assets/Item 1.png" id="game-obj1" alt="Item 1" width="40">
+                <img src="./assets/Item 2.png" id="game-obj2" alt="Item 1" width="40">
+                <img src="./assets/Item 3.png" id="game-obj3" alt="Item 1" width="40">
+            </div>
+        </div>
+        <div class="d-flex justify-content-between gap-1 my-1">
+            <div class="card card-body p-1">
+                <h5 class="text-danger m-0" id="board-player1-name">PLAYER 1</h5>
+                <h5 class="m-0">
+                    <img src="./assets/Water.png" alt="Water" width="20">
+                    <span id="board-player1-water">0</span>
+                </h5>
+                <h5 class="m-0">
+                    <img src="./assets/Action Points.png" alt="Action" width="20">
+                    <span id="board-player1-action">0</span>
+                </h5>
+            </div>
+
+            <div class="card card-body p-1">
+                <h5 class="text-success m-0" id="board-player2-name">PLAYER 2</h5>
+                <h5 class="m-0">
+                    <img src="./assets/Water.png" alt="Water" width="20">
+                    <span id="board-player2-water">0</span>
+                </h5>
+                <h5 class="m-0">
+                    <img src="./assets/Action Points.png" alt="Action" width="20">
+                    <span id="board-player2-action">0</span>
+                </h5>
+            </div>
+
+            <div class="card card-body p-1">
+                <h5 class="text-primary m-0" id="board-player3-name">PLAYER 3</h5>
+                <h5 class="m-0">
+                    <img src="./assets/Water.png" alt="Water" width="20">
+                    <span id="board-player3-water">0</span>
+                </h5>
+                <h5 class="m-0">
+                    <img src="./assets/Action Points.png" alt="Action" width="20">
+                    <span id="board-player3-action">0</span>
+                </h5>
+            </div>
+
+            <div class="card card-body p-1">
+                <h5 class="text-warning m-0" id="board-player4-name">PLAYER 4</h5>
+                <h5 class="m-0">
+                    <img src="./assets/Water.png" alt="Water" width="20">
+                    <span id="board-player4-water">0</h5>
+                </h5>
+                <h5 class="m-0">
+                    <img src="./assets/Action Points.png" alt="Action" width="20">
+                    <span id="board-player4-action">0</h5>
+                </h5>
+            </div>
+        </div>
+
+        <div id="board-grid" class="border border-dark border-3 rounded">
+        </div>
+
+        <!-- do NOT show unless its resized... -->
+        <div id="board-players" style="display: none;">
+            <div id="board-player1-img" class="border border-danger border-2 rounded">
+                <img src="./assets/Player.png" alt="Player 1" class="w-100 h-100">
+            </div>
+            <div id="board-player2-img" class="border border-success border-2 rounded">
+                <img src="./assets/Player.png" alt="Player 2" class="w-100 h-100">
+            </div>
+            <div id="board-player3-img" class="border border-primary border-2 rounded">
+                <img src="./assets/Player.png" alt="Player 3" class="w-100 h-100">
+            </div>
+            <div id="board-player4-img" class="border border-warning border-2 rounded">
+                <img src="./assets/Player.png" alt="Player 4" class="w-100 h-100">
+            </div>
+        </div>
+    </div>
+
+    <div id="game-board">
+    </div>
+
+    <script>
+        let players = {
+            count: 1,
+            list: []
+        };
+        let game = {};
+        let active = false;
+        let blocksize = null;
+        let primaryWater = 6;
+        let timeInstance = null;
+
+        function startGame(event) {
+            event.preventDefault();
+            primaryWater = +document.getElementById('water-count').value || 6;
+            players.list = [];
+
+            for (let i = 1; i <= 4; i++) {
+                let playerDiv = document.getElementById('board-player' + i + '-name').parentElement;
+                playerDiv.style.display = 'none';
+            }
+
+            for (let i = 1; i <= players.count; i++) {
+                let playerName = document.getElementById('player-' + i).value;
+                players.list.push({
+                    name: playerName,
+                    actions: 3,
+                    water: primaryWater,
+                    i: 2,
+                    j: 2,
+                });
+
+                let playerInfo = document.getElementById('board-player' + i + '-name');
+                playerInfo.parentElement.style.display = 'block';
+                playerInfo.innerText = playerName || 'PLAYER ' + i;
+            }
+
+            createBoard();
+            switchGame(true);
+            timeInstance = setInterval(() => {
+                game.time += 1;
+
+                let minutes = Math.floor(game.time / 60);
+                let seconds = game.time % 60;
+                document.querySelector('#game-time').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }, 1000);
+        }
+
+        function switchGame(newState) {
+            active = newState;
+
+            if (active) {
+                document.getElementById('menu').style.display = 'none';
+                document.getElementById('game-score').style.display = 'block';
+                document.getElementById('game-board').style.display = 'block';
+            } else {
+                document.getElementById('menu').style.display = 'block';
+                document.getElementById('game-score').style.display = 'none';
+                document.getElementById('game-board').style.display = 'none';
+            }
+        }
+
+        function showPlayerNameInputs() {
+            let playerNames = document.getElementById('player-names');
+            for (let i = 1; i <= 4; i++) {
+                let playerDiv = playerNames.querySelector('#player-' + i).parentElement.parentElement;
+                if (i <= players.count) {
+                    playerDiv.style.display = 'flex';
+                } else {
+                    playerDiv.style.display = 'none';
+                }
+            }
+        }
+
+        function createBoard() {
+            let board = document.getElementById('board-grid');
+            board.innerHTML = '';
+
+            game = {
+                time: 0,
+                grid: [],
+                objs: [],
+                currentPlayer: 1
+            };
+            
+            let col = 5, row = 5;
+            for (let i = 0; i < col; i++) {
+                game.grid[i] = [];
+                for (let j = 0; j < row; j++) {
+                    board.innerHTML += `<div class="border border-dark border-1 rounded" data-row="${i}" data-col="${j}"></div>`;
+                    game.grid[i][j] = {
+                        open: false,     // state of card (open or not)
+                        revealed: false, // state of object (revealed or not oasis/component)
+                        oasis: null,     // is oasis? (null: empty, true: real, false: mirage)
+                        component: null  // component: null, 1, 2, 3 (or clue 1/2/3)
+                    };
+                }
+            }
+
+            // assign 4 random oasis (3 real, 1 mirage)
+            for (let i = 0; i < 4; i++) {
+                let isEmpty = false;
+                let randomCol, randomRow;
+                do {
+                    randomCol = Math.floor(Math.random() * col);
+                    randomRow = Math.floor(Math.random() * row);
+                    isEmpty = game.grid[randomRow][randomCol].oasis === null;
+                } while (!isEmpty);
+
+                // assign oasis (1-3: real, 4: mirage)
+                game.grid[randomRow][randomCol].oasis = i < 3;
+            }
+            // assign 3 random components
+            for (let i = 0; i < 3; i++) {
+                let isEmpty = false;
+                let randomCol, randomRow;
+                do {
+                    randomCol = Math.floor(Math.random() * col);
+                    randomRow = Math.floor(Math.random() * row);
+                    isEmpty =
+                        game.grid[randomRow][randomCol].component === null
+                        && game.grid[randomRow][randomCol].oasis === null;
+                } while (!isEmpty);
+
+                // assign component (1-3)
+                game.grid[randomRow][randomCol].component = i + 1;
+            }
+
+            // print all oasis to console
+            for (let i = 0; i < col; i++) {
+                for (let j = 0; j < row; j++) {
+                    if (game.grid[i][j].oasis !== null) {
+                        console.log(`Oasis at (${i}, ${j}) is ${game.grid[i][j].oasis ? 'real' : 'mirage'}`);
+                    }
+                    if (game.grid[i][j].component !== null) {
+                        console.log(`Component at (${i}, ${j}) is ${game.grid[i][j].component}`);
+                    }
+                }
+            }
+
+            // configure player sizes (copy from any card of the board)
+            // wait for the board to be rendered, then set the size
+            document.getElementById('board-players').style.display = 'none';
+            setTimeout(() => {
+                let card = board.querySelector('div[data-row="2"][data-col="2"]');
+                blocksize = card.offsetWidth;
+                for (let i = 1; i <= players.count; i++) {
+                    let playerDiv = document.getElementById('board-player' + i + '-img');
+                    playerDiv.style.width = card.offsetWidth + 'px';
+                    playerDiv.style.height = card.offsetHeight + 'px';
+
+                    // move player to the center of the board (copy from the card)
+                    playerDiv.style.top = card.offsetTop + 'px';
+                    playerDiv.style.left = card.offsetLeft + 'px';
+                }
+                for (let i = players.count + 1; i <= 4; i++) {
+                    let playerDiv = document.getElementById('board-player' + i + '-img');
+                    playerDiv.style.display = 'none';
+                }
+                document.getElementById('board-players').style.display = 'block';
+            }, 100);
+            showPlayer();
+        }
+
+        function showPlayer() {
+            const opacity = 0.5;
+            const colors = [
+                `rgba(220, 53, 69, ${opacity})`,    // --bs-danger
+                `rgba(25, 135, 84, ${opacity})`,    // --bs-success
+                `rbga(13, 110, 253, ${opacity})`,   // --bs-primary
+                `rgba(255, 193, 7 ${opacity})`      // --bs-warning
+            ];
+
+            for (let i = 0; i < players.count; i++) {
+                let playerDiv = document.getElementById('board-player' + (i+1) + '-img');
+                playerDiv.style.opacity = 0.3;
+
+                if (game.currentPlayer === i+1) {
+                    playerDiv.style.opacity = 1;
+
+                    let info = players.list[i];
+                    playerDiv.style.top = document.querySelector(`div[data-row="${info.i}"][data-col="${info.j}"]`).offsetTop + 'px';
+                    playerDiv.style.left = document.querySelector(`div[data-row="${info.i}"][data-col="${info.j}"]`).offsetLeft + 'px';
+                }
+
+                document.getElementById('board-player' + (i+1) + '-water').innerText = players.list[i].water;
+                document.getElementById('board-player' + (i+1) + '-action').innerText = players.list[i].actions;
+            }
+
+            let objs = game.objs || [];
+            console.log(game.objs);
+            console.log(game.currentPlayer);
+            for (let i = 1; i <= 3; i++) {
+                let obj = document.getElementById('game-obj' + i);
+                obj.style.opacity = 0.3;
+                if (objs.includes(obj.id)) {
+                    obj.style.opacity = 1;
+                }
+            }
+        }
+
+        function nextAction() {
+            let currentPlayer = players.list[game.currentPlayer-1];
+            currentPlayer.actions -= 1;
+
+            if (currentPlayer.actions <= 0) {
+                currentPlayer.actions = 3;
+                currentPlayer.water -= 1;
+                game.currentPlayer = game.currentPlayer % players.count + 1;
+                console.log(`Player ${game.currentPlayer}'s turn`);
+            }
+
+            if (currentPlayer.water <= 0) {
+                alert("Game over - lost! \n" + (currentPlayer.name || `Player ${game.currentPlayer}`) + " has run out of water..." + "\nTime spent: " + document.querySelector('#game-time').innerText);
+                window.location.reload();
+            }
+
+            showPlayer();
+        }
+
+        window.onload = () => {
+            switchGame(false);
+            showPlayerNameInputs();
+        }
+
+        document.querySelectorAll('input[name="player-count"]').forEach((input) => {
+            input.addEventListener('change', (event) => {
+                players.count = +event.target.value;
+                showPlayerNameInputs();
+            });
+        });
+
+        document.querySelector('#board-grid').addEventListener('click', (event) => {
+            if (!active) {
+                return;
+            }
+
+            let cell = event.target;
+            if (cell.tagName.toLowerCase() === 'img') {
+                cell = cell.parentElement;
+            }
+            move(game.currentPlayer, 'move', cell);
+        });
+
+        document.querySelector('#board-players').addEventListener('click', (event) => {
+            let e = event.target;
+            if (e.tagName.toLowerCase() === 'img') {
+                e = e.parentElement;
+            }
+
+            let i = +e.id.replace('board-player', '').replace('-img', '');
+            console.log(`Player ${i} has choosen to dig`);
+
+            let currentPlayer = players.list[game.currentPlayer-1];
+            let clickedPlayer = players.list[i-1];
+
+            if (currentPlayer.i === clickedPlayer.i && currentPlayer.j === clickedPlayer.j) {
+                let cell = document.querySelector(`div[data-row="${currentPlayer.i}"][data-col="${currentPlayer.j}"]`);
+                move(game.currentPlayer, 'dig', cell);
+            }
+            else {
+                let target = document.querySelector(`div[data-row="${clickedPlayer.i}"][data-col="${clickedPlayer.j}"]`);
+                move(game.currentPlayer, 'move', target);
+            }
+        });
+
+        function move(player, action, cell) {
+            let i = +cell.getAttribute('data-row'), j = +cell.getAttribute('data-col');
+            let card = game.grid[i][j];
+
+            if (action == 'dig') {
+                if (!card.open) {
+                    card.open = true;
+                    cell.classList.add('open');
+                    if (card.oasis !== null) {
+                        card.revealed = false;
+                        cell.innerHTML = '<img src="./assets/Oasis marker.png" alt="Oasis" class="w-100 h-100">';
+                    }
+                    if (card.component !== null) {
+                        card.revealed = false;
+                        cell.innerHTML = `<img src="./assets/Item ${card.component}.png" alt="Item ${card.component}" class="w-100 h-100">`;
+                        game.objs.push(`game-obj${card.component}`);
+
+                        if (game.objs.length === 3) {
+                            timeInstance = clearInterval(timeInstance);
+                            alert('Victory! All components have been found! Time spent: ' + document.querySelector('#game-time').innerText);
+                            window.location.reload();
+                        }
+                    }
+                }
+                else {
+                    if (card.oasis !== null) {
+                        if (!card.revealed) {
+                            card.revealed = true;
+                            cell.innerHTML = `<img src="./assets/${ card.oasis ? 'Oasis' : 'Drought' }.png" alt="Water" class="w-100 h-100">`
+                        }
+
+                        if (card.oasis) {
+                            let cp = players.list[player-1]; // current player
+                            cp.water = primaryWater;
+                        }
+                    }
+                }                
+
+                nextAction();
+                return;
+            }
+
+            if (action == 'move') {
+                let cp = players.list[player-1]; // current player
+
+                let moves = [
+                    cp.i+1 < 5 ?  {i: cp.i+1, j: cp.j} : null,
+                    cp.i-1 >= 0 ? {i: cp.i-1, j: cp.j} : null,
+                    cp.j+1 < 5 ?  {i: cp.i, j: cp.j+1} : null,
+                    cp.j-1 >= 0 ? {i: cp.i, j: cp.j-1} : null
+                ]
+                if (moves.some((move) => move && move.i === i && move.j === j)) {
+                    console.log('Player can move to the cell');
+
+                    cp.i = i;
+                    cp.j = j;
+
+                    showPlayer();
+                    setTimeout(() => {
+                        nextAction();
+                    }, 300);
+                } else console.log('Player cannot move to the cell');
+                return;
+            }
+        }
+
+        document.getElementById('menu-config').addEventListener('submit', startGame);
+        
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
